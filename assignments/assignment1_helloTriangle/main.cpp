@@ -10,27 +10,34 @@ const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
 float vertices[] = {
-	-0.5f, -0.5f, 0.0f,
-	0.5f, -0.5f, 0.0f,
-	0.0f, 0.5f, 0.0f
+	-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f
+	-0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,
+	0.0f, 0.5f, 0.0f,   0.0f, 0.0f, 1.0f
 };
 
 const char* vertexShaderSource = R"(
 	#version 330 core
 	layout (location = 0) in vec3 aPos;
+	layout (location = 1) in vec3 aColor; 
+	
+	out vec3 ourColor;
+
 	void main()
 {
-	gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+	gl_Position = vec4(aPos, 1.0);
+	ourColor = aColor;
 }
 
 	)";
 const char* fragmentShaderSource = R"(
 	#version 330 core
 	out vec4 FragColor;
+	in vec3 ourColor;
+
 	
 	void main()
 	{
-		FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+		FragColor =  vec4(ourColor, 1.0);
 	}
 
 )";
@@ -117,6 +124,10 @@ int main() {
 		glClear(GL_COLOR_BUFFER_BIT);
 		//Drawing happens here!
 		glUseProgram(shaderProgram);
+		double  timeValue = glfwGetTime();
+		float greenValue = static_cast<float>(sin(timeValue) / 2.0 + 0.5);
+		int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+		glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glfwSwapBuffers(window);
